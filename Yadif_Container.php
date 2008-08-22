@@ -77,26 +77,45 @@ class Yadif_Container
 		}
 
 		if (!array_key_exists($name, $this->_container))
-			throw new Yadif_Exception($name . ' not index in $this->_container or $this->_parameters');
+			throw new Yadif_Exception("'$name' not in " . '$this->_container or $this->_parameters');
 
 		$component = $this->_container[ $name ];
 
-		$injection = array();
-
-		// array of methods to call arguments on
-		foreach ($component[ self::CONFIG_ARGUMENTS ] as $injectionMethod => $injectionArgs) {
-			// actual arguments to call on the methods
-			foreach ($injectionArgs as $arg) {
-				$injection[] = $this->getComponent($arg);
-			}
-		}
-
 		$componentReflection = new ReflectionClass($component[ self::CONFIG_CLASS ]);
 
-		if (empty($injection)) {
-			$component = $componentReflection->newInstance();
-		} else {
-			$component = $componentReflection->newInstanceArgs( $injection );
+		$componentArgs = $component[ self::CONFIG_ARGUMENTS ];
+
+		if (empty($componentArgs)) { // if no instructions
+			return $componentReflection->newInstance();
+		}
+
+		$currentIndex = 0;
+
+		foreach ($componentArgs as $method => $args) {
+			$injection = array();
+
+			foreach ($args as $arg) {
+				$injection[] = $this->getComponent($arg);
+			}
+
+			if ($componentReflection->getMethod($method)->isConstructor()) {
+				if (empty($injection)) {
+					$component = $componentReflection->newInstance();
+				} else {
+					$component = $componentReflection->newInstanceArgs($injection);
+				}
+			} else {
+				if (!is_object($component)) 
+					$component = $componentReflection->newInstance();
+
+				if (empty($injection)) {
+					$componentReflection->getMethod($method)->invoke($component);
+				} else {
+					$componentReflection->getMethod($method)->invokeArgs( $component, $injection );
+				}
+			}
+
+			++$currentIndex;
 		}
 
 		return $component;
