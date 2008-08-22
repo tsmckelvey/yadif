@@ -91,13 +91,14 @@ class Yadif_Container
 			return $this;
 		}
 
-		if (!is_array($config)) { // assume name is the class name
+		if (!is_array($config) || !isset($config[self::CONFIG_CLASS])) { // assume name is the class name
 			$config[self::CONFIG_CLASS] = $name;
 		}
 
 		if (!is_array($config[ self::CONFIG_ARGUMENTS ]))
 			$config[ self::CONFIG_ARGUMENTS ] = array();
 
+		// if class is set and doesn't exist
 		if (!class_exists( $config[self::CONFIG_CLASS] ))
 			throw new Yadif_Exception( 'Class ' . $config[self::CONFIG_CLASS] . ' not found' );
 
@@ -199,5 +200,39 @@ class Yadif_Container
 		}
 
 		return $component;
+	}
+
+	/**
+	 * Replace a component with another, hopefully implementing the same interface
+	 *
+	 * @param string $name The component name in our container
+	 * @param string|array $replacement The class name of our replacement or a configuration array
+	 * @return Yadif_Container
+	 */
+	public function replace($name = null, $replacement = null)
+	{
+		if (!is_string($name))
+			throw new Yadif_Exception('$name not string, is ' . gettype($name));
+		
+		if (!is_string($replacement) && !is_array($replacement))
+			throw new Yadif_Exception('$replacement not string|array, is ' . gettype($name));
+
+		if (!array_key_exists($name, $this->_container))
+			throw new Yadif_Exception('$name ' . $name . ' not in $this->_container');
+
+		$replacementClass = is_array($replacement) ? $replacement[self::CONFIG_CLASS] : $replacement;
+
+		assert(is_string($replacementClass));
+
+		if (!class_exists($replacementClass))
+			throw new Yadif_Exception('Class ' . $replacement . ' not found');
+
+		if (is_string($replacement)) {
+			$this->_container[$name][self::CONFIG_CLASS] = $replacement;
+		} elseif (is_array($replacement)) {
+			$this->addComponent($name, $replacement);
+		}
+
+		return $this;
 	}
 }
