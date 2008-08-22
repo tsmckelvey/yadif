@@ -55,7 +55,7 @@ class Yadif_Container
 	 */
 	public function getContainer()
 	{
-		return $this->_container();
+		return $this->_container;
 	}
 
 	/**
@@ -65,17 +65,7 @@ class Yadif_Container
 	 */
 	public function getParameters()
 	{
-		return $this->_parameters();
-	}
-
-	/**
-	 * Retrieve a parameter by name
-	 *
-	 * @return mixed $param The value of the parameter
-	 */
-	public function getParam($param)
-	{
-		return $this->_parameters[$param];
+		return $this->_parameters;
 	}
 	
 	/**
@@ -91,6 +81,15 @@ class Yadif_Container
 	{
 		if (!is_string($name) && !($name instanceof Yadif_Container)) 
 			throw new Yadif_Exception('$string not string|Yadif_Container, is ' . gettype($string));
+
+		if ($name instanceof Yadif_Container) { // if Yadif_Container
+			$foreignContainer = $name->getContainer();
+
+			// merge containers, @TODO: duplicates
+			$this->_container = array_merge($this->_container, $foreignContainer);
+
+			return $this;
+		}
 
 		if (!is_array($config)) { // assume name is the class name
 			$config[self::CONFIG_CLASS] = $name;
@@ -127,6 +126,20 @@ class Yadif_Container
 	}
 
 	/**
+	 * Retrieve a parameter by name
+	 *
+	 * @return mixed
+	 */
+	public function getParam($param)
+	{
+		if (isset($this->_parameters[$param])) {
+			return $this->_parameters[$param];
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get back a fully assembled component based on the configuration provided beforehand
 	 *
 	 * @param string $name The name of the component
@@ -138,7 +151,7 @@ class Yadif_Container
 
 		// if we're trying to "getParameter" (see the loop below)
 		if (array_key_exists($name, $this->_parameters)) {
-			return $this->_parameters[ $name ];
+			return $this->getParam($name);
 		}
 
 		if (!array_key_exists($name, $this->_container))
