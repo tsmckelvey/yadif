@@ -24,10 +24,12 @@ class Yadif_Container
 
 	public function __construct(array $config = null)
 	{
-		$config = $this->_validateArg($config, '$config', 'array');
+		if (isset($array)) {
+			$config = $this->_validateArg($config, '$config', 'array');
 
-		foreach ($config as $componentName => $componentConfig) {
-			$this->addComponent( $componentName, $componentConfig );
+			foreach ($config as $componentName => $componentConfig) {
+				$this->addComponent( $componentName, $componentConfig );
+			}
 		}
 	}
 	
