@@ -3,62 +3,75 @@ require_once 'Yadif_Exception.php';
 
 class Yadif_Container
 {
+	const CONFIG_CLASS = 'class';
+
+	const CONFIG_ARGUMENTS = 'arguments';
+
 	protected $_container = array();
 
-	public function __construct($configuration = null)
+	protected function _validateArg($arg, $argVar, $type)
 	{
-		if (!isset($configuration))
-			return;
+		$isTypes = array('array', 'bool', 'float', 'int', 'null', 'numeric', 'object',
+						 'resource', 'scalar', 'string');
 
-		if (!is_array($configuration)) {
-			throw new Yadif_Exception('$configuration is not array');
-		}
+		if (in_array($type, $isTypes)) $isType = "is_$type";
 
-		foreach ($configuration as $componentClass => $instructions) {
-			$this->addComponent( $componentClass );
+		if (!$isType($arg))
+			throw new Yadif_Exception($argVar . ' must be ' . $type . ', is ' . gettype($arg));
+
+		return $arg;
+	}
+
+	public function __construct(array $config = null)
+	{
+		$config = $this->_validateArg($config, '$config', 'array');
+
+		foreach ($config as $componentName => $componentConfig) {
+			$this->addComponent( $componentName, $componentConfig );
 		}
 	}
 	
-	public function addComponent($componentClass = null)
+	public function addComponent($name = null, array $config = null)
 	{
-		if (!isset($componentClass))
-			throw new Yadif_Exception('$componentClass not set');
+		$name = $this->_validateArg($name, '$name', 'string');
 
-		if (!is_string($componentClass))
-			throw new Yadif_Exception('$componentClass is not string, is ' . gettype($componentClass));
+		$config = $this->_validateArg($config, '$config', 'array');
 
-		if (!class_exists($componentClass))
-			throw new Yadif_Exception('Class' . $componentClass . ' not found');
+		if (!class_exists( $config[self::CONFIG_CLASS] ))
+			throw new Yadif_Exception( 'Class ' . $config[self::CONFIG_CLASS] . ' not found' );
 
-		$this->_container[ $componentClass ] = new ReflectionClass( $componentClass );
+		if (!is_array($config[ self::CONFIG_ARGUMENTS ])) $config[ self::CONFIG_ARGUMENTS ] = array();
+
+		$this->_container[ $name ] = $config;
+
+		return $this;
 	}
 
-	public function getComponent($componentIndex = null)
+	public function getComponent($name = null)
 	{
-		if (!isset($componentIndex))
-			throw new Yadif_Exception('$componentIndex not set');
+		$name = $this->_validateArg($name, '$name', 'string');
 
-		if (!is_string($componentIndex))
-			throw new Yadif_Exception('$componentIndex is not string');
+		if (!array_key_exists($name, $this->_container))
+			throw new Yadif_Exception($name . ' not index in $this->_container');
 
-		if (!array_key_exists($componentIndex, $this->_container))
-			throw new Yadif_Exception($componentIndex . ' does not exist in $this->_container');
+		$component = $this->_container[ $name ];
 
-		$componentReflection = $this->_container[ $componentIndex ];
+		$injection = array();
 
-		$componentParams = $componentReflection->getConstructor()->getParameters();
-
-		// the arguments we'll call in the constructor
-		$componentMethodArguments = array();
-
-		foreach ($componentParams as $param) {
-			$componentMethodArguments[] = $param->getClass()->newInstance();
+		// array of methods to call arguments on
+		foreach ($component[ self::CONFIG_ARGUMENTS ] as $injectionMethod => $injectionArgs) {
+			// actual arguments to call on the methods
+			foreach ($injectionArgs as $arg) {
+				$injection[] = $this->getComponent($arg);
+			}
 		}
 
-		if (empty($componentParams)) {
+		$componentReflection = new ReflectionClass($component[ self::CONFIG_CLASS ]);
+
+		if (empty($injection)) {
 			$component = $componentReflection->newInstance();
 		} else {
-			$component = $componentReflection->newInstanceArgs( $componentMethodArguments );
+			$component = $componentReflection->newInstanceArgs( $injection );
 		}
 
 		return $component;
