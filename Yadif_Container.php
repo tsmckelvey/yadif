@@ -46,7 +46,8 @@ class Yadif_Container
 		if (!class_exists( $config[self::CONFIG_CLASS] ))
 			throw new Yadif_Exception( 'Class ' . $config[self::CONFIG_CLASS] . ' not found' );
 
-		if (!is_array($config[ self::CONFIG_ARGUMENTS ])) $config[ self::CONFIG_ARGUMENTS ] = array();
+		if (!is_array($config[ self::CONFIG_ARGUMENTS ]))
+			$config[ self::CONFIG_ARGUMENTS ] = array();
 
 		$this->_container[ $name ] = $config;
 
@@ -104,14 +105,16 @@ class Yadif_Container
 				} else {
 					$component = $componentReflection->newInstanceArgs($injection);
 				}
-			} else {
+			} else { // if not constructor
 				if (!is_object($component)) 
 					$component = $componentReflection->newInstance();
 
 				if (empty($injection)) {
-					$componentReflection->getMethod($method)->invoke($component);
+					$componentReflection->getMethod($method)
+										->invoke($component);
 				} else {
-					$componentReflection->getMethod($method)->invokeArgs( $component, $injection );
+					$componentReflection->getMethod($method)
+										->invokeArgs( $component, $injection );
 				}
 			}
 
