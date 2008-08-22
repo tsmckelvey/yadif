@@ -7,7 +7,11 @@ class Yadif_Container
 
 	const CONFIG_ARGUMENTS = 'arguments';
 
+	// container of component configurations
 	protected $_container = array();
+
+	// parameters which have been set, expected to be bound
+	protected $_parameters = array();
 
 	protected function _validateArg($arg, $argVar, $type)
 	{
@@ -49,12 +53,29 @@ class Yadif_Container
 		return $this;
 	}
 
+	public function bindParam($param, $value)
+	{
+		$param = $this->_validateArg($param, '$param', 'string');
+
+		$value = $this->_validateArg($value, '$value', 'string');
+
+		if ($param{0} != ':')
+			throw new Yadif_Exception($param . ' must start with a colon (:)');
+
+		$this->_parameters[$param] = $value;
+	}
+
 	public function getComponent($name = null)
 	{
 		$name = $this->_validateArg($name, '$name', 'string');
 
+		// if we're trying to "getParameter" (see the loop below)
+		if (array_key_exists($name, $this->_parameters)) {
+			return $this->_parameters[ $name ];
+		}
+
 		if (!array_key_exists($name, $this->_container))
-			throw new Yadif_Exception($name . ' not index in $this->_container');
+			throw new Yadif_Exception($name . ' not index in $this->_container or $this->_parameters');
 
 		$component = $this->_container[ $name ];
 
