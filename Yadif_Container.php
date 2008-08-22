@@ -63,6 +63,8 @@ class Yadif_Container
 			throw new Yadif_Exception($param . ' must start with a colon (:)');
 
 		$this->_parameters[$param] = $value;
+
+		return $this;
 	}
 
 	public function getComponent($name = null)
