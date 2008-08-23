@@ -11,7 +11,7 @@
  * to tsmckelvey@gmail.com so I can send you a copy immediately.
  */
 
-require_once 'Yadif_Exception.php';
+require_once 'Exception.php';
 
 /**
  * Yadif_Container
