@@ -95,7 +95,7 @@ class Yadif_Container
 			$config[self::CONFIG_CLASS] = $name;
 		}
 
-		if (!is_array($config[ self::CONFIG_ARGUMENTS ]))
+		if (!isset($config[self::CONFIG_ARGUMENTS]) || !is_array($config[self::CONFIG_ARGUMENTS]))
 			$config[ self::CONFIG_ARGUMENTS ] = array();
 
 		// if class is set and doesn't exist
