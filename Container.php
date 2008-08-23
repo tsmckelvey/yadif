@@ -39,7 +39,7 @@ class Yadif_Container
 
 	public function __construct(array $config = null)
 	{
-		if (isset($array)) {
+		if (isset($config)) {
 			if (!is_array($config)) throw new Yadif_Exception('$config not array, is ' . gettype($config));
 
 			foreach ($config as $componentName => $componentConfig) {
