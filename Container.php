@@ -192,17 +192,32 @@ class Yadif_Container
 	}
 
 	/**
+	 * Return string minus identifier
+	 * @param string $string
+	 * @return string
+	 */
+	protected function _parseString($string)
+	{
+		return ltrim($string, self::STRING_IDENTIFIER);
+	}
+
+	/**
 	 * Get back a fully assembled component based on the configuration provided beforehand
 	 *
-	 * @param string $name The name of the component
+	 * @param mixed $name The name of the component
 	 * @return mixed 
 	 */
 	public function getComponent($name = null)
 	{
+		if (is_array($name)) {
+			foreach ($name as &$value) $value = $this->getComponent($value);
+			return $name;
+		}
+
 		if (!is_string($name)) throw new Yadif_Exception('$name not string, is ' . gettype($name));
 
 		// if is string
-		if ($name{0} === self::STRING_IDENTIFIER) return ltrim($name, self::STRING_IDENTIFIER);
+		if ($name{0} === self::STRING_IDENTIFIER) return $this->_parseString($name);
 
 		// if we're trying to "getParameter" (see the loop below)
 		if (array_key_exists($name, $this->_parameters))
