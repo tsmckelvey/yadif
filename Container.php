@@ -22,7 +22,12 @@ require_once 'Exception.php';
 class Yadif_Container
 {
 	/**
-	 * FIXME
+	 * Char we prefix string arguments with to identify as strings
+	 */
+	const STRING_IDENTIFIER = '"';
+
+	/**
+	 * Char to preserve index of identical method calls
 	 */
 	const METHOD_TRIM_CHAR = '#';
 
@@ -196,10 +201,12 @@ class Yadif_Container
 	{
 		if (!is_string($name)) throw new Yadif_Exception('$name not string, is ' . gettype($name));
 
+		// if is string
+		if ($name{0} === self::STRING_IDENTIFIER) return ltrim($name, self::STRING_IDENTIFIER);
+
 		// if we're trying to "getParameter" (see the loop below)
-		if (array_key_exists($name, $this->_parameters)) {
+		if (array_key_exists($name, $this->_parameters))
 			return $this->getParam($name);
-		}
 
 		if (!array_key_exists($name, $this->_container))
 			throw new Yadif_Exception("'$name' not in " . '$this->_container or $this->_parameters');
@@ -210,9 +217,8 @@ class Yadif_Container
 
 		$componentArgs = $component[ self::CONFIG_ARGUMENTS ];
 
-		if (empty($componentArgs)) { // if no instructions
+		if (empty($componentArgs)) // if no instructions
 			return $componentReflection->newInstance();
-		}
 
 		$currentIndex = 0;
 
