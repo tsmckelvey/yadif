@@ -157,6 +157,7 @@ class Yadif_Container
 	/**
 	 * Retrieve a parameter by name
 	 *
+	 * @param mixed $param Retrieve named parameter
 	 * @return mixed
 	 */
 	public function getParam($param)
@@ -166,6 +167,23 @@ class Yadif_Container
 		}
 
 		return false;
+	}
+
+	/**
+	 * Bind multiple parameters by way of array
+	 * @param array $params Array of parameters, key as param to bind, value as the bound value
+	 * @return Yadif_Container
+	 */
+	public function bindParams($params = null)
+	{
+		if (!is_array($params))
+			throw new Yadif_Exception('$params must be array, is ' . gettype($params));
+
+		foreach ($params as $param => $value) {
+			$this->bindParam($param, $value);
+		}
+
+		return $this;
 	}
 
 	/**
