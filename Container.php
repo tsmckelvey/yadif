@@ -22,6 +22,11 @@ require_once 'Exception.php';
 class Yadif_Container
 {
 	/**
+	 * FIXME
+	 */
+	const METHOD_TRIM_CHAR = '#';
+
+	/**
 	 * Class index key of component $config
 	 */
 	const CONFIG_CLASS = 'class';
@@ -196,9 +201,11 @@ class Yadif_Container
 		foreach ($componentArgs as $method => $args) {
 			$injection = array();
 
-			foreach ($args as $arg) {
-				$injection[] = $this->getComponent($arg);
-			}
+			foreach ($args as $arg) $injection[] = $this->getComponent($arg);
+
+			// method has hash ignore point
+			if (strstr($method, self::METHOD_TRIM_CHAR))
+				$method = substr($method, 0, (int) strpos($method, self::METHOD_TRIM_CHAR));
 
 			if ($componentReflection->getMethod($method)->isConstructor()) {
 				if (empty($injection)) {
