@@ -271,6 +271,17 @@ class Yadif_Container
 		return $component;
 	}
 
+	public function getComponents()
+	{
+		$components = array();
+
+		foreach ($this->_container as $name => $c) {
+			$components[$name] = $this->getComponent($name);
+		}
+
+		return $components;
+	}
+
 	/**
 	 * Replace a component with another, hopefully implementing the same interface
 	 *
