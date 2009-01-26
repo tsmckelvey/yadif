@@ -49,6 +49,29 @@ class Yadif_Container
 	}
 
 	/**
+	 * Create a container
+	 *
+	 * @param array|string A configuration array or the filename of a PHP 
+	 * file that returns a configuration array
+	 */
+	static public function create($config = null)
+	{
+		if (is_string($config)) {
+			$filename = (substr($config, -4, 4) === '.php') ? $config : $config . '.php';
+			if (substr($filename, -13, 13) === 'Container.php' &&
+				is_array(include_once $filename)) {
+				return new Yadif_Container(include $filename);
+			} else {
+				throw new Yadif_Exception("$filename not file");
+			}
+		} else if (is_array($config)) {
+			return new Yadif_Container($config);
+		}
+
+		throw new Yadif_Exception('$config must be string or array, is ' . gettype($config));
+	}
+
+	/**
 	 * Getter method for internal array of component configurations
 	 *
 	 * @return array
