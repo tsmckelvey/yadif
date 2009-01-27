@@ -69,7 +69,7 @@ class Yadif_Container
 		if (is_string($config)) {
 			$filename = (substr($config, -4, 4) === '.php') ? $config : $config . '.php';
 			if (substr($filename, -13, 13) === 'Container.php' &&
-				is_array(include_once $filename)) {
+				is_array(include $filename)) {
 				return new Yadif_Container(include $filename);
 			} else {
 				throw new Yadif_Exception("$filename not file");
