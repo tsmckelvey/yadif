@@ -1,12 +1,12 @@
-Yadif - Yet Another Dependency Injection Framework
+## Yadif - Yet Another Dependency Injection Framework
 
 * Originally by Thomas McKelvey (https://github.com/tsmckelvey/yadif/tree)
 * Fork by Benjamin Eberlei (https://github.com/beberlei/yadif/tree)
 
 Inject dependencies via a very simple configuration mechanism.
 
-Table of Contents
-================
+### Table of Contents
+=====
 1. Basic Syntax
 2. Object Configuration
 3. Scope Config
@@ -18,24 +18,29 @@ Table of Contents
 9. Instantiation with Factory methods
 10. Injecting Container Reference or Clones
 
-1. Basic Syntax
-================
+#### 1. Basic Syntax
+=====
 Take this constructor and setter-less class:
 
+```php
 class Foo
 {
 }
+```
 
 Creating a Yadif Container configured to create this class looks:
 
+```php
 $config = array('Foo' => array());
 $yadif  = Yadif_Container::create($config);
 $foo    = $yadif->getComponent('Foo');
+```
 
-2. Object Configuration
-================
+####2. Object Configuration
+=====
 This current fork has a slighty different configuration syntax than the original:
 
+```php
 class Foo
 {
     public function __construct($arg1, $arg2) { }
@@ -70,42 +75,46 @@ $config = array(
 
 $yadif = new Yadif_Container($config);
 $foo   = $yadif->getComponent("Foo");
+```
 
 Would do internally:
+
+```php
 $foo   = new Foo($yadif->getComponent('ConstructorArg1'), $yadif->getComponent('ConstructorArg2'));
 $foo->setA($yadif->getComponent('Inject1'));
 $foo->setB($yadif->getComponent('Inject2'), $yadif->getComponent('Inject3'));
+```
 
 Now 'ConstructorArg1', 'ConstructorArg2', 'Inject1', 'Inject2' and 'Inject3' would
 also have to be defined as classes to be constructed correctly.
 
-3. Scope Config
-===============
+#### 3. Scope Config
+=====
 Currently there are two different scopes: 'singleton' and 'prototype'. The first
 one enforces the creation of only one object of the given type. The second one
 creates new objects on each call of getComponent().
 
-4. Setting non-object parameters
-===============
+#### 4. Setting non-object parameters
+=====
 Non-object parameters are bound to methods and constructors in a PDO like binding syntax.
 For any non-oject parameter the syntax "double-colon name" has to be used to indicate
 the parameter as non-object parameter.
 
 As an example we take this Class:
-
+```php
 class Foo {
     public function __construct($bar, $number) { }
 
     public function setNumber($number) { }
 }
-
+```
 There are different scopes for these bounded parameters. A global scope and a
 method aware only scope.
 
 i.) Global Scope
 
 Via Yadif_Container::bindParam() it is possible to set global parameters to a container.
-
+```php
 $config = array(
     'Foo' => array(
         'class' => 'Foo',
@@ -118,12 +127,12 @@ $yadif->bindParam(':bar', 'BarName');
 $yadif->bindParam(':number', 1234);
 
 $foo = $yadif->getComponent('Foo');
-
+```
 ii.) Method aware scope
 
 Via the configuration mechanism you can bind parameters to a specific method where the parameters occour.
 An example for the object constructor looks like this:
-
+```php
 $config = array(
     'Foo' => array(
         'class' => 'Foo',
@@ -134,9 +143,9 @@ $config = array(
 
 $yadif = new Yadif_Container($config);
 $foo   = $yadif->getComponent('Foo');
-
+```
 For a non-object parameter in a method the syntax looks like this:
-
+```php
 $config = array(
     'Foo' => array(
         'class' => 'Foo',
@@ -154,12 +163,12 @@ $config = array(
 
 $yadif = new Yadif_Container($config);
 $foo   = $yadif->getComponent('Foo');
-
-5. Creating entities or value objects through Container
-=========================================
+```
+#### 5. Creating entities or value objects through Container
+=====
 The creation of entity or value objects mostly requires lots of arguments passed to the constructor
 or setter methods, paired with dependencies for example in an Active Record example with the Database Connection.
-
+```php
 class UserActiveRecord
 {
     public function setAdapter($db) { }
@@ -201,14 +210,14 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                   ->bindParam(':email', $row['email'])
                   ->getComponent('User');
 }
-
+```
 You could also use:
-
+```php
 $user = $yadif->bindParams(array(':name' => $row['name'], ':id' => $row['id'], ':email' => $row['email']))->getComponent('User');
-
-6. Zend Framework Front Controller Example
-=========================================
-
+```
+#### 6. Zend Framework Front Controller Example
+=====
+```php
 $config = array(
     'Request' => array(
         'class' => 'Zend_Controller_Request_Http',
@@ -278,9 +287,9 @@ $config = array(
 $yadif = new Yadif_Container($config);
 $front = $yadif->getComponent('FrontController');
 $front->dispatch();
-
+```
 Will do the following internally:
-
+```php
 $front = Zend_Controller_Front::getInstance(); // because 'factory' config is set for this one
 
 $request = new Zend_Controller_Request_Http();
@@ -310,17 +319,17 @@ $front->setParam('db', $db);
 $front->setParam('logger', $logger);
 
 $front->setControllerDirectory('/var/www/application/controllers/');
-
-7. Zend_Config Support
-===================================
+```
+#### 7. Zend_Config Support
+=====
 You can use Zend_config objects as the primary configuration mechanism:
-
+```php
 $config = new Zend_Config_Xml("objects.xml");
 $yadif  = new Yadif_Container($config);
-
+```
 Also you can use specific arguments marked with %arg% to replace with values
 inside a given application config object.
-
+```php
 $components = array(
     'YadifBaz' => array(
         'class' => 'YadifBaz',
@@ -333,9 +342,9 @@ $config = new Zend_Config(array('foo' => array('bar' => 'baz')));
 
 $yadif = new Yadif_Container($components, $config);
 $baz = $yadif->getComponent("YadifBaz");
-
-8. TODOS and Open Questions
-======================================
+```
+#### 8. TODOS and Open Questions
+=====
 1. String and Component Name Ambigoutiy - How to solve it?
     Solved! Allow non-object parameters only through 'arguments' key of configuration and bound via ':name' syntax.
     See point 4 with more details on this topic.
@@ -369,23 +378,23 @@ $baz = $yadif->getComponent("YadifBaz");
     but in this case the addComponent() functionality has to be extended to allow for a convention over configuration
     compatible merging of existing with added component definitions.
 
-9. Instantiation with Factory methods
-=====================================
+#### 9. Instantiation with Factory methods
+=====
 Sometimes you have to create certain objects through a factory method or a singleton
 creation facility. You can do that with a specific factory key:
-
+```php
 $options = array(
     'Foo' => array(
         'class' => 'Foo',
         'factory' => array('FooFactory', 'create'),
     ),
 );
-
+```
 The factory key has to hold a valid PHP callback. Then not the constructor, but
 the factory method is called to create the object. No check is performed if the object
 is created successfully.
 
-10. Injecting Container Reference or Clones
-===========================================
+#### 10. Injecting Container Reference or Clones
+=====
 Using 'ThisContainer' or 'CloneContainer' creates a reference to the current container
 or clones the container and injects it.
