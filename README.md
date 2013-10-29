@@ -4,9 +4,8 @@
 * Fork by Benjamin Eberlei (https://github.com/beberlei/yadif/tree)
 
 Inject dependencies via a very simple configuration mechanism.
-
-### Table of Contents
 =====
+### Table of Contents
 1. Basic Syntax
 2. Object Configuration
 3. Scope Config
@@ -17,9 +16,8 @@ Inject dependencies via a very simple configuration mechanism.
 8. TODOS and Open Questions
 9. Instantiation with Factory methods
 10. Injecting Container Reference or Clones
-
-#### 1. Basic Syntax
 =====
+#### 1. Basic Syntax
 Take this constructor and setter-less class:
 
 ```php
@@ -35,9 +33,8 @@ $config = array('Foo' => array());
 $yadif  = Yadif_Container::create($config);
 $foo    = $yadif->getComponent('Foo');
 ```
-
-####2. Object Configuration
 =====
+####2. Object Configuration
 This current fork has a slighty different configuration syntax than the original:
 
 ```php
@@ -87,15 +84,13 @@ $foo->setB($yadif->getComponent('Inject2'), $yadif->getComponent('Inject3'));
 
 Now 'ConstructorArg1', 'ConstructorArg2', 'Inject1', 'Inject2' and 'Inject3' would
 also have to be defined as classes to be constructed correctly.
-
-#### 3. Scope Config
 =====
+#### 3. Scope Config
 Currently there are two different scopes: 'singleton' and 'prototype'. The first
 one enforces the creation of only one object of the given type. The second one
 creates new objects on each call of getComponent().
-
-#### 4. Setting non-object parameters
 =====
+#### 4. Setting non-object parameters
 Non-object parameters are bound to methods and constructors in a PDO like binding syntax.
 For any non-oject parameter the syntax "double-colon name" has to be used to indicate
 the parameter as non-object parameter.
@@ -164,8 +159,8 @@ $config = array(
 $yadif = new Yadif_Container($config);
 $foo   = $yadif->getComponent('Foo');
 ```
-#### 5. Creating entities or value objects through Container
 =====
+#### 5. Creating entities or value objects through Container
 The creation of entity or value objects mostly requires lots of arguments passed to the constructor
 or setter methods, paired with dependencies for example in an Active Record example with the Database Connection.
 ```php
@@ -215,8 +210,8 @@ You could also use:
 ```php
 $user = $yadif->bindParams(array(':name' => $row['name'], ':id' => $row['id'], ':email' => $row['email']))->getComponent('User');
 ```
-#### 6. Zend Framework Front Controller Example
 =====
+#### 6. Zend Framework Front Controller Example
 ```php
 $config = array(
     'Request' => array(
@@ -320,8 +315,8 @@ $front->setParam('logger', $logger);
 
 $front->setControllerDirectory('/var/www/application/controllers/');
 ```
-#### 7. Zend_Config Support
 =====
+#### 7. Zend_Config Support
 You can use Zend_config objects as the primary configuration mechanism:
 ```php
 $config = new Zend_Config_Xml("objects.xml");
@@ -343,8 +338,8 @@ $config = new Zend_Config(array('foo' => array('bar' => 'baz')));
 $yadif = new Yadif_Container($components, $config);
 $baz = $yadif->getComponent("YadifBaz");
 ```
-#### 8. TODOS and Open Questions
 =====
+#### 8. TODOS and Open Questions
 1. String and Component Name Ambigoutiy - How to solve it?
     Solved! Allow non-object parameters only through 'arguments' key of configuration and bound via ':name' syntax.
     See point 4 with more details on this topic.
@@ -377,9 +372,8 @@ $baz = $yadif->getComponent("YadifBaz");
     How should the configuration of known contexts be handled. Maybe a class "MyContext extends Yadif_Container"
     but in this case the addComponent() functionality has to be extended to allow for a convention over configuration
     compatible merging of existing with added component definitions.
-
-#### 9. Instantiation with Factory methods
 =====
+#### 9. Instantiation with Factory methods
 Sometimes you have to create certain objects through a factory method or a singleton
 creation facility. You can do that with a specific factory key:
 ```php
@@ -393,8 +387,7 @@ $options = array(
 The factory key has to hold a valid PHP callback. Then not the constructor, but
 the factory method is called to create the object. No check is performed if the object
 is created successfully.
-
-#### 10. Injecting Container Reference or Clones
 =====
+#### 10. Injecting Container Reference or Clones
 Using 'ThisContainer' or 'CloneContainer' creates a reference to the current container
 or clones the container and injects it.
