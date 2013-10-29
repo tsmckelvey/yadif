@@ -4,7 +4,7 @@
 * Fork by Benjamin Eberlei (https://github.com/beberlei/yadif/tree)
 
 Inject dependencies via a very simple configuration mechanism.
-=====
+
 ### Table of Contents
 1. Basic Syntax
 2. Object Configuration
