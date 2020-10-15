@@ -34,7 +34,8 @@ $yadif  = Yadif_Container::create($config);
 $foo    = $yadif->getComponent('Foo');
 ```
 
-####2. Object Configuration
+#### 2. Object Configuration
+
 This current fork has a slighty different configuration syntax than the original:
 
 ```php
@@ -82,7 +83,7 @@ $foo->setA($yadif->getComponent('Inject1'));
 $foo->setB($yadif->getComponent('Inject2'), $yadif->getComponent('Inject3'));
 ```
 
-Now 'ConstructorArg1', 'ConstructorArg2', 'Inject1', 'Inject2' and 'Inject3' would
+Now `ConstructorArg1`, `ConstructorArg2`, `Inject1`, `Inject2` and `Inject3` would
 also have to be defined as classes to be constructed correctly.
 
 #### 3. Scope Config
@@ -108,7 +109,7 @@ method aware only scope.
 
 i.) Global Scope
 
-Via Yadif_Container::bindParam() it is possible to set global parameters to a container.
+Via `Yadif_Container::bindParam()` it is possible to set global parameters to a container.
 ```php
 $config = array(
     'Foo' => array(
@@ -391,3 +392,4 @@ is created successfully.
 #### 10. Injecting Container Reference or Clones
 Using 'ThisContainer' or 'CloneContainer' creates a reference to the current container
 or clones the container and injects it.
+
